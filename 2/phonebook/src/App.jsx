@@ -3,13 +3,14 @@ import Filter from "./components/Filter.jsx";
 import PersonForm from "./components/PersonForm.jsx";
 import Person from "./components/Person.jsx";
 import personService from "./services/people.js"
-
+import Notification from "./components/Notification.jsx";
 
 const App = () => {
     const [persons, setPersons] = useState([]);
     const [newName, setNewName] = useState('');
     const [newPhoneNumber, setNewPhoneNumber] = useState('');
     const [showAll, setShowAll] = useState('');
+    const [errorMessage, setErrorMessage] = useState('some error happened');
 
     useEffect(() => {
         personService
@@ -39,11 +40,20 @@ const App = () => {
         //     asks if they want to update information
             if (window.confirm(`Do you want to update ${newName}'s information?`)) {
                 const personToUpdate = persons.filter(person => person.name === newName);
+
                 personService
                     .update(personToUpdate[0].id, nameObject)
                     .then(returnedPerson => {
                         setPersons(persons.map(person => person.id !== personToUpdate[0].id ? person : returnedPerson));
-                    });
+                    })
+                    .catch(error => {
+                        setErrorMessage(
+                            `Note '${personToUpdate.name}' was already removed from server`
+                        )
+                        setTimeout(() => {
+                            setErrorMessage(null)
+                        }, 5000)
+                    })
             }
         }
         else {
@@ -88,6 +98,8 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
+            <Notification message={errorMessage} />
+
             <Filter value={showAll} onChange={handleSearchName} />
 
             <h3>add a new</h3>
