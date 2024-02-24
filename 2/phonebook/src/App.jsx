@@ -61,7 +61,8 @@ const App = () => {
                 .create(nameObject)
                 .then(returnedName => {
                     setPersons(persons.concat(returnedName));
-                });
+                })
+                .catch((error) => setErrorMessage(error.response.data.error));
         }
 
         setNewName('');
