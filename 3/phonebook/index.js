@@ -1,16 +1,16 @@
-const express = require('express');
-const app = express();
-require('dotenv').config();
+const express = require('express')
+const app = express()
+require('dotenv').config()
 
-const Person = require('./models/persons.js');
+const Person = require('./models/persons.js')
 
-app.use(express.static('dist'));
+app.use(express.static('dist'))
 
-const morgan = require('morgan');
+const morgan = require('morgan')
 
 morgan.token('post', (req) => {
-    if (req.method === 'POST') return ' ' + JSON.stringify(req.body);
-    else return ' ';
+    if (req.method === 'POST') return ' ' + JSON.stringify(req.body)
+    else return ' '
 })
 
 const errorHandler = (error, request, response, next) => {
@@ -20,18 +20,18 @@ const errorHandler = (error, request, response, next) => {
     }
 
     else if (error.name ==='ValidationError') {
-        return response.status(400).json({error: error.message})
+        return response.status(400).json({ error: error.message })
 
     }
     next(error)
 }
 
 
-const cors = require('cors');
+const cors = require('cors')
 
-app.use(cors());
-app.use(express.json());
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'));
+app.use(cors())
+app.use(express.json())
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'))
 
 const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint, wth' })
@@ -39,19 +39,19 @@ const unknownEndpoint = (request, response) => {
 
 app.get('/api/persons', (req, res) => {
     Person.find({}).then(p => {
-        res.json(p);
+        res.json(p)
     })
-});
+})
 
 app.get('/info', (req, res) => {
-    res.send (`<p>Phonebook has info for ${Person.length} people.</p><p>${new Date()}</p>`);
+    res.send (`<p>Phonebook has info for ${Person.length} people.</p><p>${new Date()}</p>`)
 })
 
 app.post('/api/persons', (req, res, next) => {
 
     if(!req.body.name || !req.body.number) {
         return res.status(400).json({
-            error: "name or number missing!"
+            error: 'name or number missing!'
         })
     }
 
@@ -71,16 +71,16 @@ app.get('/api/persons/:id', (req, res, next) => {
 
     Person.findById(req.params.id).then(p => {
         if (p) {
-            res.json(p);
+            res.json(p)
         } else {
             res.status(404).end()
         }
-    }).catch(error => next(error));
+    }).catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
     Person.findByIdAndDelete(req.params.id)
-        .then(result => {
+        .then(() => {
             res.status(204).end()
         })
         .catch(error => next(error))
@@ -88,7 +88,7 @@ app.delete('/api/persons/:id', (req, res, next) => {
 
 app.put('/api/persons/:id', (request, response, next) => {
 
-    const { name, number } = request.body;
+    const { name, number } = request.body
 
     Person.findByIdAndUpdate(
         request.params.id,
